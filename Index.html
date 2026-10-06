@@ -1,0 +1,1069 @@
+<!doctype html>
+<html>
+<head>
+  <base target="_top">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    :root { --brand:#b71920; --blue:#1967d2; --green:#188038; --orange:#e37400; --gray:#5f6368; --border:#dadce0; --purple:#7e57c2; }
+    *{box-sizing:border-box}
+    body{font-family:Arial,sans-serif;margin:0;background:#f6f8fb;color:#202124;padding:18px}
+    .container{max-width:1700px;margin:auto;background:#fff;border-radius:14px;padding:22px;box-shadow:0 2px 12px rgba(0,0,0,.06)}
+    h1{font-size:25px;margin:0 0 5px}.brand{color:var(--brand)}.subtitle{color:var(--gray);margin-bottom:16px}
+    .topbar,.toolbar,.folders,.badges{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:12px 0}
+    .topbar select,.topbar input{padding:9px;border:1px solid var(--border);border-radius:8px;min-width:220px}
+    button{border:0;border-radius:8px;padding:9px 12px;cursor:pointer;font-weight:600}.small{padding:6px 9px;font-size:12px}
+    .blue{background:#e8f0fe;color:#185abc}.green{background:#e6f4ea;color:#137333}.red{background:#fce8e6;color:#b31412}.orange{background:#fef7e0;color:#8d5b00}.gray{background:#f1f3f4;color:#3c4043}.purple{background:#f3e8fd;color:#6f3cc3}.dark{background:#202124;color:#fff}
+    button:disabled{opacity:.5;cursor:not-allowed}
+    .mode,.badge{padding:8px 11px;border-radius:8px;font-weight:700;font-size:12px}.shadow{background:#fef7e0;color:#8d5b00}.live{background:#e6f4ea;color:#137333}.mode-new{background:#e8f0fe;color:#185abc}.mode-migrate{background:#fce8e6;color:#b31412}.type-badge{background:#f1f3f4;color:#3c4043}.migration-badge{background:#f3e8fd;color:#6f3cc3}
+    .folder{display:inline-block;padding:6px 9px;background:#f8f9fa;border:1px solid var(--border);border-radius:8px;color:#3c4043;text-decoration:none}.missing-folder{color:#b31412;background:#fce8e6}
+    .summary{display:grid;grid-template-columns:repeat(7,minmax(110px,1fr));gap:10px;margin:14px 0}.card{border:1px solid var(--border);border-radius:10px;padding:12px}.num{font-size:23px;font-weight:700}.label{font-size:12px;color:var(--gray);margin-top:4px}
+    .table-wrap{overflow:auto;border:1px solid var(--border);border-radius:10px}table{width:100%;border-collapse:collapse;min-width:1500px}th,td{padding:10px;border-bottom:1px solid #eee;vertical-align:top;text-align:left}th{background:#f8f9fa;position:sticky;top:0;z-index:1;font-size:12px;color:#5f6368}
+    .doc-link,.asset-link{font-weight:600;color:#1a73e8;text-decoration:none}.muted{font-size:11px;color:#80868b;margin-top:4px}.pill{display:inline-block;font-size:11px;font-weight:700;padding:4px 7px;border-radius:999px;margin-bottom:6px}.p-current{background:#e8f0fe;color:#1967d2}.p-missing{background:#e6f4ea;color:#137333}.p-outdated{background:#fce8e6;color:#b31412}.p-review{background:#fef7e0;color:#8d5b00}.p-draft{background:#f1f3f4;color:#5f6368}.p-pub{background:#e6f4ea;color:#137333}.actions{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}
+    .notice{padding:10px 12px;border-radius:8px;margin:10px 0;background:#e8f0fe;color:#185abc}.warn{background:#fef7e0;color:#8d5b00}.error{background:#fce8e6;color:#b31412}.success{background:#e6f4ea;color:#137333}.result{margin-top:12px;white-space:pre-wrap}.right{margin-left:auto}
+    .spinner{display:none;position:fixed;inset:0;background:rgba(255,255,255,.8);z-index:99;align-items:center;justify-content:center}.spinner.show{display:flex}.box{background:#fff;border-radius:12px;padding:22px;box-shadow:0 4px 20px rgba(0,0,0,.15)}
+    .ops-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:14px 0}
+    .ops-card{border:1px solid var(--border);border-radius:12px;padding:14px;background:#fff}
+    .ops-head{display:flex;align-items:flex-start;gap:10px;margin-bottom:8px}.ops-head h3{margin:0;font-size:16px}.ops-head .pill{margin-left:auto}
+    .ops-sub{font-size:12px;color:var(--gray);line-height:1.45;margin-bottom:10px}
+    .ops-metrics{display:grid;grid-template-columns:repeat(4,minmax(80px,1fr));gap:8px;margin:10px 0}.ops-metric{background:#f8f9fa;border:1px solid #eee;border-radius:8px;padding:8px}.ops-metric b{display:block;font-size:16px}.ops-metric span{font-size:10px;color:var(--gray)}
+    .p-ok{background:#e6f4ea;color:#137333}.p-warn{background:#fef7e0;color:#8d5b00}.p-error{background:#fce8e6;color:#b31412}.p-neutral{background:#f1f3f4;color:#5f6368}
+    .ops-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}.ops-note{font-size:11px;color:#80868b;margin-top:8px;line-height:1.4}
+    @media(max-width:1050px){.ops-grid{grid-template-columns:1fr}.ops-metrics{grid-template-columns:repeat(2,1fr)}}
+    .hidden{display:none!important}
+    .danger-zone{border:1px solid #f28b82;background:#fff8f7;margin:14px 0}
+    .danger-zone .ops-head h3{color:#b31412}
+    .danger-zone select{border:1px solid var(--border);border-radius:8px;padding:8px 10px;background:#fff;min-width:230px}
+    .danger-lock{font-size:11px;color:#b31412;margin-top:8px;line-height:1.45}
+
+    /* V3.2.1: Project Settings modal. Replaces fragile browser prompt() chain. */
+    .modal-overlay{display:none;position:fixed;inset:0;background:rgba(32,33,36,.58);z-index:120;align-items:flex-start;justify-content:center;padding:24px;overflow:auto}
+    .modal-overlay.show{display:flex}
+    .settings-modal{width:min(1120px,100%);background:#fff;border-radius:14px;box-shadow:0 10px 40px rgba(0,0,0,.28);overflow:hidden;margin:auto}
+    .settings-head{display:flex;align-items:flex-start;gap:16px;padding:20px 22px;border-bottom:1px solid var(--border);position:sticky;top:0;background:#fff;z-index:3}
+    .settings-head h2{margin:0;font-size:22px}.settings-head p{margin:5px 0 0;color:var(--gray);font-size:13px}.settings-head .close-btn{margin-left:auto;background:#f1f3f4;color:#3c4043;font-size:18px;padding:6px 10px}
+    .settings-body{padding:20px 22px;max-height:calc(100vh - 190px);overflow:auto}
+    .settings-section{border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px;background:#fff}
+    .settings-section h3{margin:0 0 12px;font-size:16px}.settings-section .section-note{font-size:12px;color:var(--gray);margin:-5px 0 14px}
+    .form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 18px}.field.full{grid-column:1/-1}.field label{display:block;font-size:12px;font-weight:700;margin-bottom:6px;color:#3c4043}.field input,.field select,.field textarea{width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 11px;background:#fff;color:#202124;font:inherit}.field textarea{min-height:82px;resize:vertical}.field input:focus,.field select:focus,.field textarea:focus{outline:2px solid #d2e3fc;border-color:#8ab4f8}.help{font-size:11px;color:#80868b;margin-top:5px;line-height:1.4}.readonly{background:#f8f9fa!important;color:#5f6368!important}.toggle-grid{display:grid;grid-template-columns:repeat(4,minmax(120px,1fr));gap:9px}.check-card{display:flex;align-items:center;gap:7px;border:1px solid var(--border);border-radius:8px;padding:9px;background:#f8f9fa;font-size:12px}.check-card input{margin:0}
+    .settings-foot{display:flex;align-items:center;gap:8px;padding:14px 22px;border-top:1px solid var(--border);position:sticky;bottom:0;background:#fff;z-index:3}.draft-state{font-size:12px;color:#137333;margin-right:auto}.settings-foot button{min-width:110px}.settings-tip{padding:10px 12px;background:#e8f0fe;color:#185abc;border-radius:8px;font-size:12px;margin-bottom:14px;line-height:1.5}
+    @media(max-width:760px){.modal-overlay{padding:8px}.form-grid{grid-template-columns:1fr}.toggle-grid{grid-template-columns:repeat(2,1fr)}.settings-body{max-height:calc(100vh - 175px)}.settings-foot{flex-wrap:wrap}.draft-state{width:100%;margin-bottom:4px}}
+    @media(max-width:900px){body{padding:8px}.container{padding:12px}.summary{grid-template-columns:repeat(2,1fr)}}
+  </style>
+</head>
+<body>
+<div id="spinner" class="spinner"><div class="box" id="spinnerText">Đang xử lý...</div></div>
+<div class="container">
+  <h1><span class="brand">V4.6.8</span> Multi-Project Google Entity Stack Manager</h1>
+  <div class="subtitle">Google Docs → Slides / PDF / DOCX / HTML + Public Project Sheet / Project Form → Private Registry → Calendar V2.1.1. Public Sheet: Assets + Content.</div>
+
+  <div class="topbar">
+    <b>Project</b>
+    <select id="projectSelect" onchange="switchProject()"></select>
+    <button class="green" onclick="addProjectUi()">+ Add Project</button>
+    <button class="gray" onclick="settingsUi()">Project Settings</button>
+    <button id="lifecycleBtn" class="purple hidden" onclick="reviewLifecycleUi()">Confirm Project Lifecycle</button>
+    <button id="migrationBtn" class="orange hidden" onclick="migrationUi()">V2 → V3 Migration</button>
+    <button id="verifyMigrationBtn" class="purple hidden" onclick="verifyMigrationUi()">Verify Migration</button>
+    <button id="enableWriteBtn" class="green hidden" onclick="enableWrite()">Enable GES Write</button>
+    <button id="disableWriteBtn" class="gray hidden" onclick="disableWrite()">Disable GES Write</button>
+    <button id="rollbackBtn" class="gray hidden" onclick="rollbackMigration()">Rollback to V2</button>
+  </div>
+
+  <div id="badges" class="badges"></div>
+  <div id="setupNotice"></div>
+  <div id="folders" class="folders"></div>
+  <div id="summary" class="summary"></div>
+
+  <div id="gesOperations" class="ops-grid">
+    <div class="ops-card">
+      <div class="ops-head">
+        <h3>BUILD COMPLETE GES</h3>
+        <span id="gesBuildStatus" class="pill p-neutral">READY</span>
+      </div>
+      <div class="ops-sub">Orchestrator resumable: Source Docs → Slides / PDF / DOCX / HTML → Public Project Sheet + Project Form → Private Registry → Calendar V2.1 → Docs Resource Footer → Output Hyperlink Footer (Slides/PDF/DOCX/HTML) → Visibility Audit.</div>
+      <div class="ops-metrics">
+        <div class="ops-metric"><b id="opsDocs">0</b><span>Source Docs</span></div>
+        <div class="ops-metric"><b id="opsAssetsCurrent">0</b><span>Drive Current</span></div>
+        <div class="ops-metric"><b id="opsAssetsPending">0</b><span>Drive Pending</span></div>
+        <div class="ops-metric"><b id="opsCalendarReady">0</b><span>Project Assets CURRENT</span></div>
+        <div class="ops-metric"><b id="opsQueue">IDLE</b><span>Build Queue</span></div>
+      </div>
+      <div class="ops-actions">
+        <button class="purple" onclick="previewBuildCompleteGesUi()">Preview Build</button>
+        <button class="purple" onclick="previewSheetUi()">Preview Public Sheet</button>
+        <button class="purple" onclick="previewPublicContentUi()">Preview Content</button>
+        <button class="purple" onclick="previewFormUi()">Preview Form</button>
+        <button id="buildSheetBtn" class="green" onclick="buildSheetUi()">Build/Sync Public Sheet</button>
+        <button class="purple" onclick="previewDocsResourcesUi()">Preview Docs Resources</button>
+        <button id="syncDocsResourcesBtn" class="green" onclick="syncDocsResourcesUi()">Sync Docs Resources</button>
+        <button class="purple" onclick="previewOutputResourcesUi()">Preview Output Resources</button>
+        <button id="syncOutputResourcesBtn" class="green" onclick="syncOutputResourcesUi()">Sync Output Resources</button>
+        <button id="buildFormBtn" class="green" onclick="buildFormUi()">Build/Sync Form</button>
+        <button class="gray" onclick="inspectBuildQueueUi()">Queue Status</button>
+        <button class="gray" onclick="retryBuildQueueUi()">Retry Queue</button>
+        <button id="buildCompleteGesBtn" class="green" onclick="buildCompleteGesUi()">BUILD COMPLETE GES</button>
+      </div>
+      <div id="gesBuildNote" class="ops-note"></div>
+    </div>
+
+    <div class="ops-card">
+      <div class="ops-head">
+        <h3>Google Calendar <span class="muted">V2.1.1 · 15 Project Events</span></h3>
+        <span id="calendarStatusPill" class="pill p-neutral">NOT BUILT</span>
+      </div>
+      <div id="calendarMeta" class="ops-sub">Calendar V2.1.1 project-centric. Canonical 15 events + explicit legacy cleanup; Target Hub chỉ dùng 14 canonical assets.</div>
+      <div class="ops-metrics">
+        <div class="ops-metric"><b id="calPlanReady">0</b><span>Plan READY</span></div>
+        <div class="ops-metric"><b id="calCurrent">0</b><span>CURRENT</span></div>
+        <div class="ops-metric"><b id="calDeferred">0</b><span>DEFERRED</span></div>
+        <div class="ops-metric"><b id="calReview">0</b><span>Review/Error</span></div>
+      </div>
+      <div class="ops-actions">
+        <button class="purple" onclick="previewCalendarUi()">Preview Plan</button>
+        <button class="purple" onclick="previewCalendarSyncUi()">Preview Sync</button>
+        <button class="purple" onclick="previewCalendarV2MigrationUi()">Preview V2 Migration</button>
+        <button id="applyCalendarV2MigrationBtn" class="orange" onclick="applyCalendarV2MigrationUi()">Apply V2 Migration</button>
+        <button id="buildCalendarBtn" class="green" onclick="buildCalendarUi()">Build / Adopt Calendar</button>
+        <button id="syncCalendarBtn" class="blue" onclick="syncCalendarUi()">Sync Calendar</button>
+        <button id="openCalendarBtn" class="gray" onclick="openGesCalendarUi()">Open Calendar</button>
+        <button id="calendarVisibilityBtn" class="gray" onclick="validateCalendarVisibilityUi()">Validate Public</button>
+        <button class="gray" onclick="auditCalendarRegistryUi()">Audit Registry</button>
+        <button class="purple" onclick="previewCalendarLegacyCleanupUi()">Preview Legacy Cleanup</button>
+        <button id="applyCalendarLegacyCleanupBtn" class="orange" onclick="applyCalendarLegacyCleanupUi()">Apply Legacy Cleanup</button>
+      </div>
+      <div id="calendarNote" class="ops-note"></div>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <button class="gray" onclick="loadDashboard()">↻ Refresh</button>
+    <button id="syncSelectedBtn" class="blue" onclick="syncSelected()">↻ Sync Selected</button>
+    <button id="createAllBtn" class="green" onclick="createAllMissing()">+ Create All Missing</button>
+    <button id="syncChangedBtn" class="red" onclick="syncAllChanged()">↻ Sync All Changed</button>
+    <button class="gray" onclick="scanNow()">Scan Drive Now</button>
+    <button class="gray" onclick="fullReconcile()">Full Reconcile</button>
+    <button class="gray" onclick="openRegistry()">Open Registry Sheet</button>
+    <button class="gray" onclick="validateRegistryPrivacyUi()">Validate Registry Privacy</button>
+    <button class="purple" onclick="previewStructureUi()">Preview Structure V4.1</button>
+    <button id="provisionStructureBtn" class="green" onclick="provisionStructureUi()">Provision Structure V4.1</button>
+    <button class="purple" onclick="validateBrandingUi()">Validate Branding</button>
+    <button class="purple" onclick="previewG1Models()">Preview G1 Models</button>
+    <button class="gray" onclick="installTrigger()">Install Scan Trigger</button>
+  </div>
+
+  <div class="ops-card" style="margin:14px 0">
+    <div class="ops-head"><h3>Project Singleton Assets</h3><span class="pill p-neutral">PROJECT SCOPE</span></div>
+    <div class="ops-sub">Mỗi project có tối đa 1 Public Project Sheet + 1 Public Project Form. Public Sheet chỉ project Assets + Content; Asset Registry vẫn PRIVATE và tiếp tục lưu URL Variants. Legacy Sheets/Forms không bị move hoặc xóa.</div>
+    <div id="projectAssets" class="ops-metrics"></div>
+  </div>
+
+
+
+  <div id="privateStorageCard" class="ops-card" style="margin:14px 0">
+    <div class="ops-head">
+      <h3>Private System Storage V4.5</h3>
+      <span id="privateStoragePill" class="pill p-neutral">NOT CONFIGURED</span>
+    </div>
+    <div class="ops-sub">Dùng một <b>GES Private System</b> chung cho tất cả project. Registry được move sang private project folder và giữ nguyên File ID. Legacy Sheets/Forms được archive private; Entity Data chỉ giữ metadata/index tối thiểu, không còn là runtime asset.</div>
+    <div id="privateStorageMetrics" class="ops-metrics"></div>
+    <div class="ops-actions">
+      <button id="previewPrivateStorageBtn" class="purple" onclick="previewPrivateStorageUi()">Preview V4.5</button>
+      <button id="applyPrivateStorageBtn" class="orange" onclick="applyPrivateStorageUi()">Apply Private Storage</button>
+      <button id="verifyPrivateStorageBtn" class="green" onclick="verifyPrivateStorageUi()">Verify</button>
+      <button id="testPrivateStorageBtn" class="gray" onclick="testPrivateStorageUi()">Smoke Test</button>
+    </div>
+    <div id="privateStorageNote" class="ops-note"></div>
+  </div>
+
+  <div id="folderNameReconcileCard" class="ops-card" style="margin:14px 0">
+    <div class="ops-head">
+      <h3>Canonical Folder Name Reconcile V4.5.1</h3>
+      <span id="folderNameReconcilePill" class="pill p-neutral">NOT INSTALLED</span>
+    </div>
+    <div class="ops-sub">Sau khi đổi tên Project Root, module này rename đúng 8 canonical folder theo tên Root hiện tại và <b>giữ nguyên Folder ID</b>. Không create/move/delete folder và không đụng legacy Sheets/Forms.</div>
+    <div id="folderNameReconcileMetrics" class="ops-metrics"></div>
+    <div class="ops-actions">
+      <button id="previewFolderNameReconcileBtn" class="purple" onclick="previewFolderNameReconcileUi()">Preview V4.5.1</button>
+      <button id="applyFolderNameReconcileBtn" class="orange" onclick="applyFolderNameReconcileUi()">Apply Rename</button>
+      <button id="verifyFolderNameReconcileBtn" class="green" onclick="verifyFolderNameReconcileUi()">Verify</button>
+      <button id="testFolderNameReconcileBtn" class="gray" onclick="testFolderNameReconcileUi()">Smoke Test</button>
+    </div>
+    <div id="folderNameReconcileNote" class="ops-note"></div>
+  </div>
+
+  <div id="dangerZone" class="ops-card danger-zone">
+    <div class="ops-head">
+      <h3>Danger Zone · Project Reset</h3>
+      <span class="pill p-error">PREVIEW ONLY</span>
+    </div>
+    <div class="ops-sub">Patch D chỉ lập kế hoạch reset. Không file/folder/Calendar/Event/Registry/Script Property nào bị thay đổi và chưa có hàm Execute Reset trong code.</div>
+    <div class="ops-actions">
+      <select id="resetMode" title="Chọn mức reset để preview">
+        <option value="RESET_TEST_BUILD" selected>RESET_TEST_BUILD · Recommended</option>
+        <option value="RESET_OUTPUTS">RESET_OUTPUTS · Generated outputs only</option>
+        <option value="RESET_GES_STATE">RESET_GES_STATE · State only</option>
+        <option value="FULL_PROJECT_PURGE">FULL_PROJECT_PURGE · Preview only / hard blocked</option>
+      </select>
+      <button id="previewResetBtn" class="red" onclick="previewProjectResetUi()">Preview Project Reset</button>
+      <button class="dark" disabled title="Patch D không chứa execute function">Execute Reset · LOCKED</button>
+      <button class="gray" onclick="runProjectResetSmokeUi()">Reset Preview Smoke Test</button>
+    </div>
+    <div id="resetPreviewNote" class="danger-lock">Mặc định RESET_TEST_BUILD giữ Project Root, Source Docs, media, legacy assets, Project Profile, Private Registry file và Calendar container. Chỉ asset GES được xác nhận bằng Registry/manager marker mới có thể xuất hiện trong danh sách trash candidate.</div>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr>
+        <th><input id="selectAll" type="checkbox" onchange="toggleAll()"></th>
+        <th>Google Docs (Articles)</th><th>Slides</th><th>PDF</th><th>DOCX</th><th>HTML</th><th>Docs cập nhật</th><th>Sync All</th>
+      </tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+  <div id="result" class="result"></div>
+</div>
+
+<!-- GES V4 Project Settings Modal: all fields in one screen, no prompt() chain. -->
+<div id="settingsOverlay" class="modal-overlay" aria-hidden="true">
+  <div class="settings-modal" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+    <div class="settings-head">
+      <div>
+        <h2 id="settingsTitle">Project Settings &amp; Branding</h2>
+        <p>Nhập toàn bộ thông số trong một lần. Dữ liệu đang nhập được tự động lưu nháp trên trình duyệt.</p>
+      </div>
+      <button class="close-btn" type="button" onclick="closeSettingsModal()" title="Đóng">×</button>
+    </div>
+
+    <div class="settings-body">
+      <div class="settings-tip">
+        <b>Mẹo:</b> bạn có thể mở Google Drive hoặc website ở tab khác để lấy File ID/URL rồi quay lại. Form này không bị đóng như hộp thoại <code>prompt()</code>. Nếu trang bị reload, mở lại Project Settings để khôi phục bản nháp.
+      </div>
+
+      <div class="settings-section">
+        <h3>1. Project</h3>
+        <div class="section-note">Thông tin nhận diện project. Setup Mode chỉ hiển thị để kiểm tra; thay đổi lifecycle dùng chức năng riêng.</div>
+        <div class="form-grid">
+          <div class="field">
+            <label>Project Name *</label>
+            <input id="psProjectName" type="text" placeholder="VD: Bảo lãnh diện visa K1 mất bao lâu?">
+            <div class="help">Tên hiển thị trên Dashboard và dùng làm tiền tố tên subfolder.</div>
+          </div>
+          <div class="field">
+            <label>Project Keyword *</label>
+            <input id="psProjectKeyword" type="text" placeholder="VD: bảo lãnh diện visa K1 mất bao lâu">
+            <div class="help">Keyword/entity canonical của Project. Dùng cho exact-match Doc/Slides và tên singleton Sheet/Form.</div>
+          </div>
+          <div class="field">
+            <label>Project Type *</label>
+            <select id="psProjectType">
+              <option value="HOMEPAGE">HOMEPAGE</option>
+              <option value="PAGE_TARGET">PAGE_TARGET</option>
+              <option value="SERVICE_PAGE">SERVICE_PAGE</option>
+              <option value="ARTICLE">ARTICLE</option>
+              <option value="AUTHOR">AUTHOR</option>
+              <option value="BRAND">BRAND</option>
+              <option value="OTHER">OTHER</option>
+            </select>
+            <div class="help">Page SEO cụ thể thường chọn PAGE_TARGET; trang dịch vụ chọn SERVICE_PAGE.</div>
+          </div>
+          <div class="field full">
+            <label>Target Page URL</label>
+            <input id="psTargetUrl" type="url" placeholder="https://example.com/duong-dan-page-target/">
+            <div class="help">URL website chính mà bộ Stack này hỗ trợ. Có thể để trống nếu chưa xác định.</div>
+          </div>
+          <div class="field">
+            <label>Provisioning Mode</label>
+            <input id="psProvisioningMode" class="readonly" type="text" readonly>
+            <div class="help">NEW_STACK = bộ Stack mới; MIGRATE_V2 = project cần bảo toàn/migrate dữ liệu V2.</div>
+          </div>
+          <div class="field">
+            <label>Root Drive Folder</label>
+            <input id="psRootFolder" class="readonly" type="text" readonly>
+            <div class="help">Chỉ hiển thị để đối chiếu. Không thay Root Folder trong form này.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <h3>2. Brand &amp; Contact</h3>
+        <div class="section-note">Các thông tin này được Branding Layer dùng cho Slides/PDF/DOCX/HTML và CTA fallback.</div>
+        <div class="form-grid">
+          <div class="field">
+            <label>Brand Name *</label>
+            <input id="psBrandName" type="text" placeholder="Example Brand">
+            <div class="help">VD: Example Brand.</div>
+          </div>
+          <div class="field">
+            <label>Website URL *</label>
+            <input id="psWebsiteUrl" type="url" placeholder="https://example.com/">
+            <div class="help">Nên dùng URL homepage đầy đủ, có https://.</div>
+          </div>
+          <div class="field">
+            <label>Hotline 1</label>
+            <input id="psPhone1" type="text" placeholder="0900 000 000">
+          </div>
+          <div class="field">
+            <label>Hotline 2</label>
+            <input id="psPhone2" type="text" placeholder="0900 000 001">
+          </div>
+          <div class="field">
+            <label>Email</label>
+            <input id="psEmail" type="email" placeholder="name@example.com">
+          </div>
+          <div class="field full">
+            <label>Địa chỉ</label>
+            <textarea id="psAddress" placeholder="Địa chỉ doanh nghiệp"></textarea>
+            <div class="help">Địa chỉ chỉ điền ở đây; không đặt địa chỉ vào Logo Drive File ID.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <h3>3. Logo &amp; CTA Banner</h3>
+        <div class="section-note">Có thể dán trực tiếp File ID hoặc URL Google Drive. Trong giai đoạn test nên dùng PNG/JPG.</div>
+        <div class="form-grid">
+          <div class="field full">
+            <label>Logo Google Drive File ID / URL *</label>
+            <input id="psLogoDrive" type="text" placeholder="VD: 1AbC... hoặc https://drive.google.com/file/d/1AbC.../view">
+            <div class="help">Ảnh logo trên Drive. Không cần public để dùng cho Slides/PDF/DOCX/HTML.</div>
+          </div>
+          <div class="field full">
+            <label>Logo Public URL</label>
+            <input id="psLogoPublic" type="url" placeholder="https://example.com/path/logo.png">
+            <div class="help">Optional. Có thể để trống nếu chỉ dùng ảnh Drive cho asset GES.</div>
+          </div>
+          <div class="field full">
+            <label>CTA Footer Google Drive File ID / URL</label>
+            <input id="psCtaDrive" type="text" placeholder="VD: File ID/URL của banner CTA + hotline + website">
+            <div class="help">Optional. Nếu để trống, Slides/Docs export sẽ không chèn ảnh CTA; HTML vẫn có thể dùng CTA fallback từ Website/Hotline.</div>
+          </div>
+          <div class="field full">
+            <label>CTA Public URL</label>
+            <input id="psCtaPublic" type="url" placeholder="https://example.com/path/cta-footer.png">
+            <div class="help">Optional. Có thể để trống; HTML vẫn có CTA fallback từ Website/Hotline.</div>
+          </div>
+          <div class="field">
+            <label>CTA Label</label>
+            <input id="psCtaLabel" type="text" placeholder="TƯ VẤN NGAY">
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <h3>4. Core Google Entity URLs</h3>
+        <div class="form-grid">
+          <div class="field full">
+            <label>Google Maps URL</label>
+            <input id="psMapsUrl" type="url" placeholder="https://www.google.com/maps?cid=...">
+          </div>
+          <div class="field full">
+            <label>Google Sites URL</label>
+            <input id="psSitesUrl" type="url" placeholder="https://sites.google.com/view/example">
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <h3>5. Extended Google Assets</h3>
+        <div class="section-note">Optional. Với sản phẩm Google không có API phù hợp, nhân viên tạo/share/publish thủ công rồi dán URL tại đây. GES sẽ lưu vào Private Registry và tự đưa xuống Public Sheet &gt; Assets.</div>
+        <div class="form-grid">
+          <div class="field full"><label>NotebookLM Public URL</label><input id="psNotebookLmUrl" type="url" placeholder="https://notebooklm.google.com/..."><div class="help">Public notebook link. Có thể yêu cầu người xem đăng nhập Google.</div></div>
+          <div class="field full"><label>NotebookLM Chat View URL</label><input id="psNotebookLmChatUrl" type="url" placeholder="https://notebooklm.google.com/..."><div class="help">Optional. Chỉ điền nếu notebook có link Chat View riêng.</div></div>
+          <div class="field full"><label>Google My Maps URL</label><input id="psMyMapsUrl" type="url" placeholder="https://www.google.com/maps/d/..."><div class="help">Khác với Google Maps business URL phía trên. Nên đặt My Maps ở chế độ public trước khi dán link.</div></div>
+          <div class="field full"><label>Google Earth Project URL</label><input id="psEarthUrl" type="url" placeholder="https://earth.google.com/..."></div>
+          <div class="field full"><label>Google AI Studio App URL</label><input id="psAiStudioUrl" type="url" placeholder="https://...ai.studio hoặc URL app đã publish"></div>
+          <div class="field full"><label>Google Colab URL</label><input id="psColabUrl" type="url" placeholder="https://colab.research.google.com/..."></div>
+          <div class="field full"><label>Google Vids URL</label><input id="psVidsUrl" type="url" placeholder="Google Vids share URL"></div>
+          <div class="field full"><label>Google Vids MP4 URL</label><input id="psVidsMp4Url" type="url" placeholder="Drive/public URL của MP4 export"></div>
+          <div class="field full"><label>Google Pics URL</label><input id="psPicsUrl" type="url" placeholder="Google Pics share URL"></div>
+          <div class="field full"><label>Apps Script Web App URL</label><input id="psAppsScriptWebAppUrl" type="url" placeholder="https://script.google.com/macros/s/.../exec"></div>
+          <div class="field full"><label>Google Drawing File ID / URL</label><input id="psDrawingUrl" type="text" placeholder="File ID hoặc https://docs.google.com/drawings/d/.../edit"><div class="help">Optional. GES chấp nhận File ID hoặc URL.</div></div>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <h3>6. Branding Targets &amp; Scheduler</h3>
+        <div class="toggle-grid">
+          <label class="check-card"><input id="psBrandingEnabled" type="checkbox"> Bật Branding Layer</label>
+          <label class="check-card"><input id="psTargetSlides" type="checkbox"> Slides</label>
+          <label class="check-card"><input id="psTargetDocs" type="checkbox"> Docs export layer</label>
+          <label class="check-card"><input id="psTargetPdf" type="checkbox"> PDF</label>
+          <label class="check-card"><input id="psTargetDocx" type="checkbox"> DOCX</label>
+          <label class="check-card"><input id="psTargetHtml" type="checkbox"> HTML</label>
+          <label class="check-card"><input id="psScheduledSync" type="checkbox"> Scheduled Registry Sync</label>
+        </div>
+        <div class="help" style="margin-top:10px">"Docs export layer" áp dụng branding lên temporary Google Doc dùng để xuất PDF/DOCX; không tự sửa Google Docs nguồn trong Articles.</div>
+      </div>
+    </div>
+
+    <div class="settings-foot">
+      <span id="settingsDraftState" class="draft-state">Draft tự động lưu.</span>
+      <button class="gray" type="button" onclick="resetSettingsDraft()">Bỏ bản nháp</button>
+      <button class="gray" type="button" onclick="closeSettingsModal()">Đóng</button>
+      <button class="green" type="button" onclick="saveSettingsModal()">Save Project Settings</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let D = null;
+function $(id){return document.getElementById(id)}
+function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+function attr(v){return esc(v)}
+function jsq(v){return String(v||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/\r?\n/g,' ')}
+function busy(on,text){$('spinner').classList.toggle('show',!!on);if(text)$('spinnerText').textContent=text}
+function fail(e){busy(false);showResult((e&&e.message)||String(e),'error')}
+function showResult(msg,cls){$('result').innerHTML='<div class="notice '+(cls||'')+'">'+esc(msg)+'</div>'}
+function call(name,args,ok,text){busy(true,text||'Đang xử lý...');let r=google.script.run.withSuccessHandler(x=>{busy(false);if(ok)ok(x)}).withFailureHandler(fail);r[name].apply(r,args||[])}
+function setVisible(id,show){$(id).classList.toggle('hidden',!show)}
+
+function loadDashboard(){call('getDashboardData',[],renderDashboard,'Đang tải GES V4 Dashboard...')}
+function renderDashboard(data){
+  D=data;
+  if(data.setupRequired){
+    $('setupNotice').innerHTML='<div class="notice warn">Chưa có project. <button class="green small" onclick="addProjectUi()">+ Create First Project</button></div>';
+    $('rows').innerHTML='';
+    $('badges').innerHTML='';
+    return;
+  }
+  $('setupNotice').innerHTML='';
+  renderProjects();
+  renderLifecycle();
+  renderFolders();
+  renderSummary();
+  renderGesOperations();
+  renderPrivateStorageV45();
+  renderFolderNameReconcileV451();
+  renderProjectResetDangerZoneV44();
+  renderRows();
+}
+function renderProjects(){
+  let s=$('projectSelect');
+  s.innerHTML=(D.projects||[]).map(p=>'<option value="'+attr(p.projectId)+'" '+(p.projectId===D.activeProjectId?'selected':'')+'>'+esc(p.projectName||p.brandName||p.rootFolderName)+'</option>').join('')
+}
+function switchProject(){call('setActiveProject',[$('projectSelect').value],()=>loadDashboard(),'Đang đổi project...')}
+
+function renderLifecycle(){
+  const p=D.project||{};
+  const l=D.lifecycle||{};
+  const a=D.availableActions||{};
+  let badges=[];
+  badges.push('<span class="badge type-badge">'+esc(l.projectType||'UNSPECIFIED')+'</span>');
+  badges.push('<span class="badge '+(l.provisioningMode==='NEW_STACK'?'mode-new':l.provisioningMode==='MIGRATE_V2'?'mode-migrate':'type-badge')+'">'+esc(l.provisioningMode||'UNSET')+'</span>');
+  if(l.provisioningMode==='MIGRATE_V2') badges.push('<span class="badge migration-badge">MIGRATION: '+esc(l.migrationStatus||'')+'</span>');
+  badges.push(l.writeEnabled?'<span class="mode live">GES WRITE ENABLED</span>':'<span class="mode shadow">SHADOW MODE</span>');
+  $('badges').innerHTML=badges.join('');
+
+  setVisible('lifecycleBtn',!!l.requiresLifecycleConfirmation || (a.canConfirmLifecycle && (l.projectType==='UNSPECIFIED'||l.provisioningMode==='UNSET')));
+  setVisible('migrationBtn',!!a.showMigrationControls);
+  setVisible('verifyMigrationBtn',!!a.canVerifyMigration);
+  setVisible('rollbackBtn',!!a.showRollback);
+  setVisible('enableWriteBtn',!l.writeEnabled);
+  $('enableWriteBtn').disabled=!a.canEnableWrite;
+  $('enableWriteBtn').title=a.canEnableWrite?'':'Project chưa đủ điều kiện Enable Write';
+  setVisible('disableWriteBtn',!!a.canDisableWrite);
+
+  const canSync=!!a.canSync;
+  $('syncSelectedBtn').disabled=!canSync;
+  $('createAllBtn').disabled=!canSync;
+  $('syncChangedBtn').disabled=!canSync;
+
+  if(l.requiresLifecycleConfirmation){
+    const sType=l.suggestedProjectType||'chưa xác định';
+    const sMode=l.suggestedProvisioningMode||'chưa xác định';
+    $('setupNotice').innerHTML='<div class="notice warn"><b>GES V4 cần xác nhận Project Lifecycle.</b><br>Gợi ý Project Type: '+esc(sType)+' · Setup Mode: '+esc(sMode)+'<br>GES V4 sẽ không Enable Write cho tới khi bạn xác nhận.</div>';
+  } else if(l.provisioningMode==='NEW_STACK'){
+    $('setupNotice').innerHTML='<div class="notice">Project này là <b>NEW_STACK</b>: không cần V2 Migration. Chỉ cần Validate và Enable GES Write khi cấu trúc đã đúng.</div>';
+  } else if(l.provisioningMode==='MIGRATE_V2' && !l.writeEnabled){
+    $('setupNotice').innerHTML='<div class="notice warn">Project này là <b>MIGRATE_V2</b>. Cần Migration → Verify → Enable GES Write.</div>';
+  }
+}
+
+function renderFolders(){$('folders').innerHTML=(D.folderSummary||[]).map(f=>{const tag=f.legacy?' [LEGACY]':'';return f.exists?'<a class="folder" target="_blank" href="'+attr(f.url)+'">📁 '+esc(f.name+tag)+'</a>':'<span class="folder missing-folder">⚠ '+esc((f.name||f.key)+tag)+'</span>'}).join('')}
+function renderSummary(){let s=D.summary||{},cards=[['Docs',s.docs],['Missing',s.missing],['Outdated',s.outdated],['Current',s.current],['Review',s.review],['Registry Assets',s.assets],['URL Variants',s.urls]];$('summary').innerHTML=cards.map(c=>'<div class="card"><div class="num">'+(c[1]||0)+'</div><div class="label">'+c[0]+'</div></div>').join('')}
+function renderGesOperations(){
+  const s=D.summary||{}, c=D.calendar||{}, cap=D.capabilities||{}, l=D.lifecycle||{}, pa=D.projectAssets||{};
+  const pending=(s.missing||0)+(s.outdated||0)+(s.review||0);
+  $('opsDocs').textContent=s.docs||0;
+  $('opsAssetsCurrent').textContent=s.current||0;
+  $('opsAssetsPending').textContent=pending;
+  $('opsCalendarReady').textContent=['PROJECT_URL_SHEET','PROJECT_FORM'].filter(t=>pa[t]&&pa[t].status==='CURRENT').length;
+  const q=D.buildQueue||{};
+  $('opsQueue').textContent=(q.status||'IDLE')+(q.queueMode?(' · '+q.queueMode):'')+(q.totalJobs?(' · '+(q.progressPercent||0)+'%'):'');
+
+  const buildInstalled=cap.completeBuild!==false;
+  const canSync=!!(D.availableActions&&D.availableActions.canSync);
+  $('buildCompleteGesBtn').disabled=!buildInstalled||!canSync;
+  if($('buildSheetBtn'))$('buildSheetBtn').disabled=!cap.sheetAsset||!canSync;
+  if($('buildFormBtn'))$('buildFormBtn').disabled=!cap.formAsset||!canSync;
+  if($('provisionStructureBtn'))$('provisionStructureBtn').disabled=!canSync||!cap.projectStructureProvision;
+  $('buildCompleteGesBtn').title=!buildInstalled?'GesBuilder.gs chưa được cài':(!canSync?'Enable GES Write trước':'');
+  $('gesBuildStatus').className='pill '+(l.writeEnabled?'p-ok':'p-warn');
+  $('gesBuildStatus').textContent=l.writeEnabled?'WRITE READY':'SHADOW MODE';
+  $('gesBuildNote').textContent=buildInstalled
+    ? ('Current scope: Docs → Slides / PDF / DOCX / HTML + Public Project Sheet / Project Form → Calendar V2.1 · Queue '+(q.status||'IDLE')+(q.queueMode?(' · '+q.queueMode):'')+(q.totalJobs?(' · '+(q.completedJobs||0)+'/'+q.totalJobs+' · '+(q.progressPercent||0)+'%'):''))
+    : 'Chưa phát hiện GesBuilder.gs.';
+
+  renderProjectAssetsV41();
+
+  const plan=c.plan||{}, reg=c.registry||{};
+  $('calPlanReady').textContent=plan.ready||0;
+  $('calCurrent').textContent=reg.current||0;
+  $('calDeferred').textContent=reg.deferred||0;
+  $('calReview').textContent=(reg.outdated||0)+(reg.orphaned||0)+(reg.error||0)+(reg.conflict||0);
+  const cm=c.migration||{};
+  const calStatus=c.status||'UNKNOWN';
+  $('calendarStatusPill').className='pill '+(calStatus==='CURRENT'?'p-ok':(calStatus==='MIGRATION_REQUIRED'||calStatus==='OUTDATED'||calStatus==='PARTIAL'?'p-warn':(calStatus==='ERROR'||calStatus==='CONFLICT'?'p-bad':'p-neutral')));
+  $('calendarStatusPill').textContent=calStatus;
+  const calWritable=canSync&&!cm.required;
+  $('buildCalendarBtn').disabled=!cap.calendarBuild||!calWritable;
+  $('syncCalendarBtn').disabled=!cap.calendarSync||!calWritable;
+  $('openCalendarBtn').disabled=!(c&&c.calendarUrl);
+  $('calendarVisibilityBtn').disabled=!cap.calendarVisibility||!c.calendarId||!!cm.required;
+  if($('applyCalendarV2MigrationBtn')) $('applyCalendarV2MigrationBtn').disabled=!cap.calendarV2MigrationApply||!canSync||!cm.required;
+  if($('applyCalendarLegacyCleanupBtn')) $('applyCalendarLegacyCleanupBtn').disabled=!cap.calendarV21CleanupApply||!canSync;
+  $('calendarMeta').textContent='Schema '+(c.schemaVersion||'2.1.1')+' · Template '+(c.templateId||'GES_PROJECT_CALENDAR_V2_15_EVENTS')+' · Migration '+(cm.status||'NOT_REQUIRED');
+  $('calendarNote').textContent='Plan '+(plan.total||0)+'/15 roles · READY '+(plan.ready||0)+' · Missing '+(plan.missingSource||0)+' · Review '+(plan.needsReview||0)+' · Registry '+(reg.total||0)+' rows.';
+}
+function renderProjectAssetsV41(){
+  const pa=(D&&D.projectAssets)||{};
+  const specs=[
+    ['PROJECT_URL_SHEET','Public Project Sheet','buildSheetUi'],
+    ['PROJECT_FORM','Project Form','buildFormUi'],
+    ['PROJECT_DRAWING','Project Drawing',''],
+    ['PROJECT_MY_MAPS','Google My Maps',''],
+    ['PROJECT_EARTH','Google Earth','']
+  ];
+  $('projectAssets').innerHTML=specs.map(spec=>{
+    const a=pa[spec[0]]||{status:'DEFERRED'};
+    let act='';
+    if(spec[2]&&(a.status==='MISSING'||a.status==='OUTDATED'||a.status==='WRONG_FOLDER')) act=writeButton('<button class="green small" onclick="'+spec[2]+'()">Build/Sync</button>');
+    else if(a.url) act=openBtn(a.url);
+    if(spec[0]==='PROJECT_URL_SHEET'&&a.id){
+      act += '<button class="gray small" onclick="setProjectPublicSheetPublishedUrlUi()">Set Pub URL</button>';
+      act += '<button class="gray small" onclick="validatePublicSheetUi()">Validate Public</button>';
+    }
+    else if(a.status==='NEEDS_REVIEW'||a.status==='SOURCE_REQUIRED'||a.status==='DUPLICATE') act='<span class="muted">Manual review</span>';
+    else act='<span class="muted">Module sau</span>';
+    return '<div class="ops-metric"><b style="font-size:13px">'+esc(spec[1])+'</b><span>'+pill(a.status)+'</span><div class="actions">'+act+'</div></div>';
+  }).join('');
+}
+
+
+function renderPrivateStorageV45(){
+  const cap=(D&&D.capabilities)||{}, ps=(D&&D.privateStorage)||{};
+  const installed=!!cap.privateStorageV45Preview;
+  const status=ps.status||'NOT_CONFIGURED';
+  const pill=$('privateStoragePill');
+  if(pill){
+    pill.textContent=status;
+    pill.className='pill '+(status==='VERIFIED'?'p-success':(status==='ERROR'?'p-error':(status==='APPLIED'?'p-warn':'p-neutral')));
+  }
+  if($('previewPrivateStorageBtn')) $('previewPrivateStorageBtn').disabled=!installed;
+  if($('applyPrivateStorageBtn')) $('applyPrivateStorageBtn').disabled=!cap.privateStorageV45Apply||!canWrite();
+  if($('verifyPrivateStorageBtn')) $('verifyPrivateStorageBtn').disabled=!cap.privateStorageV45Verify;
+  if($('testPrivateStorageBtn')) $('testPrivateStorageBtn').disabled=!cap.privateStorageV45Tests;
+  const er=ps.entityRetirement||{};
+  if($('privateStorageMetrics')) $('privateStorageMetrics').innerHTML=[
+    ['Registry Private',ps.registryPrivate?'YES':'NO'],
+    ['Registry Moved',ps.registryMoved?'YES':'NO'],
+    ['Legacy Sheets',ps.legacySheetsMoved?'ARCHIVED':'PENDING'],
+    ['Legacy Forms',ps.legacyFormsMoved?'ARCHIVED':'PENDING'],
+    ['Entity Index',er.indexedFiles||0],
+    ['Runtime Legacy Scan',er.runtimeScanDisabled?'OFF':'ON']
+  ].map(x=>'<div><b>'+esc(x[1])+'</b><span>'+esc(x[0])+'</span></div>').join('');
+  if($('privateStorageNote')) $('privateStorageNote').textContent=installed
+    ? 'Policy: Preview → Apply → Verify · không delete/Trash · giữ Drive IDs · chỉ remove public-anyone permission của private-system items.'
+    : 'PrivateSystemStorageV45.js chưa được cài.';
+}
+
+function previewPrivateStorageUi(){
+  call('previewActivePrivateSystemStorageV45',[],r=>showResult(JSON.stringify(r,null,2),(r.blockers&&r.blockers.length)?'warn':'success'),'Đang Preview Private System Storage V4.5...');
+}
+function applyPrivateStorageUi(){
+  if(!canWrite())return alert('Project đang SHADOW MODE. Hãy Enable GES Write trước.');
+  if(!confirm('Apply GES V4.5 Private System Storage?\n\n- Move Asset Registry sang GES Private System và GIỮ File ID.\n- Move legacy Sheets/Forms sang Private Legacy Archive và GIỮ Folder/File IDs.\n- Remove quyền public-anyone khỏi private items nhưng giữ user/domain permissions.\n- Tạo Entity Config + Entity Index metadata.\n- KHÔNG xóa/Trash bất kỳ file nào.'))return;
+  call('applyActivePrivateSystemStorageV45',[],r=>{showResult(JSON.stringify(r,null,2),r.success?'success':'warn');loadDashboard()},'Đang Apply Private System Storage V4.5...');
+}
+function verifyPrivateStorageUi(){
+  call('verifyActivePrivateSystemStorageV45',[],r=>{showResult(JSON.stringify(r,null,2),r.success?'success':'warn');loadDashboard()},'Đang Verify Private System Storage V4.5...');
+}
+function testPrivateStorageUi(){
+  call('runPrivateSystemStorageV45SmokeTests',[],r=>showResult(JSON.stringify(r,null,2),r.success?'success':'error'),'Đang chạy Private Storage smoke tests...');
+}
+
+function renderFolderNameReconcileV451(){
+  const cap=(D&&D.capabilities)||{}, fn=(D&&D.folderNameReconcile)||{};
+  const installed=!!cap.folderNameV451Preview;
+  const status=fn.status||'NOT_INSTALLED';
+  const pill=$('folderNameReconcilePill');
+  if(pill){
+    pill.textContent=status;
+    pill.className='pill '+(status==='CURRENT'?'p-success':(status==='OUTDATED'?'p-warn':(status==='BLOCKED'||status==='ERROR'?'p-error':'p-neutral')));
+  }
+  if($('previewFolderNameReconcileBtn')) $('previewFolderNameReconcileBtn').disabled=!installed;
+  if($('applyFolderNameReconcileBtn')) $('applyFolderNameReconcileBtn').disabled=!cap.folderNameV451Apply||!canWrite()||status==='CURRENT'||status==='BLOCKED'||status==='ERROR';
+  if($('verifyFolderNameReconcileBtn')) $('verifyFolderNameReconcileBtn').disabled=!cap.folderNameV451Verify;
+  if($('testFolderNameReconcileBtn')) $('testFolderNameReconcileBtn').disabled=!cap.folderNameV451Tests;
+  if($('folderNameReconcileMetrics')) $('folderNameReconcileMetrics').innerHTML=[
+    ['Root',fn.rootFolderName||'—'],
+    ['Canonical',fn.totalCanonicalFolders||8],
+    ['Current',fn.currentCount||0],
+    ['Rename',fn.renameCount||0],
+    ['Blockers',fn.blockerCount||0]
+  ].map(x=>'<div><b>'+esc(x[1])+'</b><span>'+esc(x[0])+'</span></div>').join('');
+  if($('folderNameReconcileNote')) $('folderNameReconcileNote').textContent=installed
+    ? 'Policy: Preview → Apply Rename → Verify · expected name lấy từ live Project Root · giữ nguyên 8 Folder IDs · không create/move/delete.'
+    : 'CanonicalFolderNameReconcileV451.gs chưa được cài.';
+}
+
+function previewFolderNameReconcileUi(){
+  call('previewActiveCanonicalFolderNameReconcileV451',[],r=>showResult(JSON.stringify(r,null,2),(r.blockers&&r.blockers.length)?'warn':'success'),'Đang Preview Canonical Folder Name Reconcile V4.5.1...');
+}
+function applyFolderNameReconcileUi(){
+  if(!canWrite())return alert('Project đang SHADOW MODE. Hãy Enable GES Write trước.');
+  if(!confirm('Apply Canonical Folder Name Reconcile V4.5.1?\n\n- Rename đúng 8 canonical folder theo tên Project Root hiện tại.\n- GIỮ NGUYÊN Folder ID.\n- KHÔNG create/move/delete folder.\n- KHÔNG đụng legacy Sheets/Forms.'))return;
+  call('applyActiveCanonicalFolderNameReconcileV451',[],r=>{showResult(JSON.stringify(r,null,2),r.success?'success':'warn');loadDashboard()},'Đang rename canonical folders và giữ nguyên Folder IDs...');
+}
+function verifyFolderNameReconcileUi(){
+  call('verifyActiveCanonicalFolderNameReconcileV451',[],r=>{showResult(JSON.stringify(r,null,2),r.success?'success':'warn');loadDashboard()},'Đang Verify Canonical Folder Names V4.5.1...');
+}
+function testFolderNameReconcileUi(){
+  call('runCanonicalFolderNameReconcileV451SmokeTests',[],r=>showResult(JSON.stringify(r,null,2),r.success?'success':'error'),'Đang chạy V4.5.1 smoke tests...');
+}
+
+function renderProjectResetDangerZoneV44(){
+  const cap=(D&&D.capabilities)||{};
+  const installed=!!cap.projectResetPreviewV44;
+  if($('previewResetBtn')) $('previewResetBtn').disabled=!installed;
+  if($('resetPreviewNote')) $('resetPreviewNote').textContent=installed
+    ? 'Preview-only active. RESET_TEST_BUILD giữ Project Root, Source Docs, media, legacy assets, Project Profile, Private Registry file và Calendar container. Execute Reset chưa tồn tại trong Patch D.'
+    : 'ProjectResetManager.gs chưa được cài. Danger Zone hiện bị khóa.';
+}
+
+function pill(status){let c='p-review';if(status==='CURRENT'||status==='SITE_EMBEDDED'||status==='RENDERER_READY')c='p-current';else if(status==='MISSING'||status==='NOT_EXPOSED')c='p-missing';else if(status==='OUTDATED'||status==='RENDERER_OUTDATED'||status==='REMOTE_CHANGED')c='p-outdated';else if(status==='DRAFT')c='p-draft';else if(status==='PUBLISHED')c='p-pub';return '<span class="pill '+c+'">'+esc(status)+'</span>'}
+function openBtn(url){return url?'<button class="blue small" onclick="window.open(\''+jsq(url)+'\',\'_blank\')">Open</button>':''}
+function canWrite(){return !!(D&&D.availableActions&&D.availableActions.canCreateAssets)}
+function writeButton(html){return canWrite()?html:html.replace('<button ','<button disabled title="Enable GES Write trước" ')}
+function renderAsset(docId,type,a){let acts='';if(a.status==='MISSING')acts=writeButton('<button class="green small" onclick="syncAsset(\''+jsq(docId)+'\',\''+type+'\')">+ Create</button>');else if(a.status==='OUTDATED'||a.status==='RENDERER_OUTDATED')acts=writeButton('<button class="red small" onclick="syncAsset(\''+jsq(docId)+'\',\''+type+'\')">↻ Update</button>')+openBtn(a.url);else if(a.status==='WRONG_FOLDER')acts=writeButton('<button class="orange small" onclick="syncAsset(\''+jsq(docId)+'\',\''+type+'\')">Adopt</button>')+openBtn(a.url);else if(a.status==='CURRENT')acts=openBtn(a.url);else acts='<button class="orange small" disabled>Review</button>'+openBtn(a.url);if((type==='SLIDES'||type==='SHEET')&&a.id)acts+='<button class="gray small" onclick="setPublishedUrlUi(\''+type+'\',\''+jsq(a.id)+'\')">Set Pub URL</button>';return pill(a.status)+'<div><a class="asset-link" target="_blank" href="'+attr(a.url||'#')+'">'+esc(a.name||('Chưa có '+type))+'</a></div><div class="muted">'+esc(a.resolutionMethod||'')+'</div><div class="actions">'+acts+(type==='HTML'&&a.id?'<button class="gray small" onclick="previewHtml(\''+jsq(docId)+'\')">Preview</button>':'')+'</div>'}
+function renderRows(){let rows=D.rows||[],tb=$('rows');if(!rows.length){tb.innerHTML='<tr><td colspan="8" style="padding:28px;text-align:center;color:#80868b">Không có Google Docs trực tiếp trong '+esc(D.project.rootFolderName)+' Articles.</td></tr>';return}tb.innerHTML=rows.map(r=>'<tr><td><input class="docCheck" type="checkbox" value="'+attr(r.id)+'"></td><td><a class="doc-link" target="_blank" href="'+attr(r.url)+'">'+esc(r.name)+'</a><div class="muted">ID: '+esc(r.id.slice(0,12))+'…</div><div class="actions"><button class="gray small" onclick="setPublishedUrlUi(\'DOC\',\''+jsq(r.id)+'\')">Set Docs Pub URL</button></div></td><td>'+renderAsset(r.id,'SLIDES',r.assets.SLIDES)+'</td><td>'+renderAsset(r.id,'PDF',r.assets.PDF)+'</td><td>'+renderAsset(r.id,'DOCX',r.assets.DOCX)+'</td><td>'+renderAsset(r.id,'HTML',r.assets.HTML)+'</td><td>'+new Date(r.updated).toLocaleString()+'</td><td>'+writeButton('<button class="blue small" onclick="syncRow(\''+jsq(r.id)+'\')">Sync All</button>')+'</td></tr>').join('')}
+
+function toggleAll(){document.querySelectorAll('.docCheck').forEach(x=>x.checked=$('selectAll').checked)}
+function selected(){return Array.from(document.querySelectorAll('.docCheck:checked')).map(x=>x.value)}
+function syncAsset(id,type){call('syncSingleAsset',[id,type],r=>{showResult((r.code||'')+' '+(r.message||''),r.success?'success':'error');loadDashboard()},'Đang sync '+type+'...')}
+function syncRow(id){call('syncDocumentAllAssets',[id],r=>{showResult(JSON.stringify(r,null,2),r.success?'success':'warn');loadDashboard()},'Đang đưa Docs này vào Resumable Sync Queue...')}
+function syncSelected(){let ids=selected();if(!ids.length)return alert('Hãy chọn ít nhất 1 Docs.');if(!confirm('Đưa '+ids.length+' Docs đã chọn vào Resumable Sync Queue?\n\nQueue sẽ tự tiếp tục bằng trigger cho tới khi hoàn tất.'))return;call('syncSelectedDocuments',[ids],r=>{showResult(JSON.stringify(r,null,2),r.success?'success':'warn');loadDashboard()},'Đang tạo SELECTED_SYNC queue...')}
+function createAllMissing(){if(!confirm('Tạo toàn bộ Slides/PDF/DOCX/HTML đang MISSING bằng Resumable Queue?\n\nProject lớn sẽ tự chia thành nhiều execution và tự resume.'))return;call('createAllMissingAssets',[],r=>{showResult(JSON.stringify(r,null,2),r.success?'success':'warn');loadDashboard()},'Đang tạo CREATE_MISSING queue...')}
+function syncAllChanged(){if(!confirm('Đưa toàn bộ asset OUTDATED + resource footers vào Resumable Queue?\n\nMissing assets vẫn không được tạo trong mode SYNC_CHANGED.'))return;call('syncAllChangedAssets',[],r=>{showResult(JSON.stringify(r,null,2),r.success?'success':'warn');loadDashboard()},'Đang tạo SYNC_CHANGED queue...')}
+function previewHtml(id){call('previewHtmlForDoc',[id],r=>{let w=window.open('','_blank');w.document.write(r.fullHtml);w.document.close()},'Đang render Preview...')}
+
+function previewStructureUi(){
+  call('previewActiveProjectStructureV41',[],r=>showResult(JSON.stringify(r,null,2),'success'),'Đang Preview Project Structure V4.1 (read-only)...');
+}
+function provisionStructureUi(){
+  if(!canWrite())return alert('Project đang SHADOW MODE. Hãy Enable GES Write trước.');
+  if(!confirm('Provision các canonical folder còn thiếu theo V4.1?\n\nKhông move/rename/delete legacy assets. Không tạo Sheets/Forms folder.'))return;
+  call('provisionActiveProjectStructureV41',[],r=>{showResult(JSON.stringify(r,null,2),'success');loadDashboard()},'Đang provision Project Structure V4.1...');
+}
+
+function scanNow(){call('scanDriveNow',[],r=>{showResult(JSON.stringify(r,null,2),'success');loadDashboard()},'Đang Quick Scan Drive...')}
+function fullReconcile(){call('fullReconcileNow',[],r=>{showResult(JSON.stringify(r,null,2),'success');loadDashboard()},'Đang Full Reconcile...')}
+function openRegistry(){if(D&&D.registryUrl)window.open(D.registryUrl,'_blank');else alert('Registry Sheet chưa sẵn sàng.')}
+function validateRegistryPrivacyUi(){
+  call('validateActiveAssetRegistryPrivacyV43',[],r=>showResult(JSON.stringify(r,null,2),r.valid?'success':'warn'),'Đang kiểm tra privacy của Asset Registry...');
+}
+
+function addProjectUi(){
+  let root=prompt('Root Drive Folder URL hoặc ID:');if(!root)return;
+  let projectName=prompt('Project Name (ví dụ: Example Brand Homepage):','');if(projectName===null)return;
+  let projectKeyword=prompt('Project Keyword (exact keyword/entity của Project):',projectName||'');if(projectKeyword===null)return;
+  let projectType=prompt('Project Type: HOMEPAGE / PAGE_TARGET / SERVICE_PAGE / ARTICLE / AUTHOR / BRAND / OTHER','PAGE_TARGET');if(!projectType)return;
+  projectType=projectType.trim().toUpperCase();
+  let target=prompt('Target Page URL (optional):','');
+  let brand=prompt('Brand Name:','');if(brand===null)return;if(!brand.trim())return alert('Brand Name là bắt buộc.');
+  let website=prompt('Website URL:','');if(website===null)return;if(!website.trim())return alert('Website URL là bắt buộc.');
+  let mode=prompt('Setup Mode: NEW_STACK hoặc MIGRATE_V2','NEW_STACK');if(!mode)return;
+  mode=mode.trim().toUpperCase();
+  call('addProject',[{rootFolderUrl:root,projectName:projectName,projectKeyword:projectKeyword,projectType:projectType,provisioningMode:mode,targetPageUrl:target,brandName:brand,websiteUrl:website}],p=>{call('setActiveProject',[p.projectId],()=>loadDashboard(),'Đang chọn project mới...')},'Đang tạo GES Project Profile + subfolders + Registry...')
+}
+
+function settingsDraftKey_(){
+  return 'ges_v452_settings_draft_' + ((D&&D.project&&D.project.projectId)||'unknown');
+}
+function settingsFieldIds_(){
+  return ['psProjectName','psProjectKeyword','psProjectType','psTargetUrl','psBrandName','psWebsiteUrl','psLogoDrive','psLogoPublic','psCtaDrive','psCtaPublic','psCtaLabel','psPhone1','psPhone2','psEmail','psAddress','psMapsUrl','psSitesUrl','psNotebookLmUrl','psNotebookLmChatUrl','psMyMapsUrl','psEarthUrl','psAiStudioUrl','psColabUrl','psVidsUrl','psVidsMp4Url','psPicsUrl','psAppsScriptWebAppUrl','psDrawingUrl','psBrandingEnabled','psTargetSlides','psTargetDocs','psTargetPdf','psTargetDocx','psTargetHtml','psScheduledSync'];
+}
+function readSettingsForm_(){
+  const o={};
+  settingsFieldIds_().forEach(id=>{const el=$(id);if(!el)return;o[id]=(el.type==='checkbox')?!!el.checked:el.value});
+  return o;
+}
+function writeSettingsForm_(o){
+  o=o||{};
+  settingsFieldIds_().forEach(id=>{const el=$(id);if(!el||o[id]===undefined)return;if(el.type==='checkbox')el.checked=!!o[id];else el.value=o[id]==null?'':o[id]});
+}
+function saveSettingsDraft_(){
+  try{
+    localStorage.setItem(settingsDraftKey_(),JSON.stringify(readSettingsForm_()));
+    if($('settingsDraftState'))$('settingsDraftState').textContent='Bản nháp đã tự lưu lúc '+new Date().toLocaleTimeString();
+  }catch(e){if($('settingsDraftState'))$('settingsDraftState').textContent='Không lưu được draft trên trình duyệt, nhưng form vẫn giữ dữ liệu khi đổi tab.'}
+}
+function loadSettingsDraft_(){
+  try{const raw=localStorage.getItem(settingsDraftKey_());return raw?JSON.parse(raw):null}catch(e){return null}
+}
+function clearSettingsDraft_(){try{localStorage.removeItem(settingsDraftKey_())}catch(e){}}
+function savedSettingsObject_(){
+  const p=(D&&D.project)||{}, b=p.branding||{}, bl=b.logo||{}, bc=b.cta||{}, phones=Array.isArray(b.phones)?b.phones:[], targets=b.targets||{}, sched=p.scheduledRegistrySync||{}, e=p.extendedGoogleAssets||{};
+  return {
+    psProjectName:p.projectName||'', psProjectKeyword:p.projectKeyword||p.projectName||'', psProjectType:p.projectType||'OTHER', psTargetUrl:p.targetPageUrl||'',
+    psBrandName:b.brandName||p.brandName||'', psWebsiteUrl:b.websiteUrl||p.websiteUrl||'',
+    psLogoDrive:bl.driveFileId||p.logoFileId||'', psLogoPublic:bl.publicUrl||'',
+    psCtaDrive:bc.driveFileId||'', psCtaPublic:bc.publicUrl||'', psCtaLabel:bc.label||'TƯ VẤN NGAY',
+    psPhone1:phones[0]||p.phone||'', psPhone2:phones[1]||p.phone2||'', psEmail:b.email||p.email||'', psAddress:b.address||p.address||'',
+    psMapsUrl:p.googleMapsUrl||'', psSitesUrl:e.googleSitesUrl||p.googleSitesUrl||'',
+    psNotebookLmUrl:e.notebookLmPublicUrl||'', psNotebookLmChatUrl:e.notebookLmChatUrl||'',
+    psMyMapsUrl:e.googleMyMapsUrl||'', psEarthUrl:e.googleEarthUrl||'', psAiStudioUrl:e.googleAiStudioUrl||'',
+    psColabUrl:e.googleColabUrl||'', psVidsUrl:e.googleVidsUrl||'', psVidsMp4Url:e.googleVidsMp4Url||'',
+    psPicsUrl:e.googlePicsUrl||'', psAppsScriptWebAppUrl:e.appsScriptWebAppUrl||'', psDrawingUrl:e.googleDrawingUrl||e.googleDrawingFileId||'',
+    psBrandingEnabled:b.enabled!==false,
+    psTargetSlides:targets.slides!==false, psTargetDocs:targets.docs!==false, psTargetPdf:targets.pdf!==false, psTargetDocx:targets.docx!==false,
+    psTargetHtml:targets.html!==false,
+    psScheduledSync:!!sched.enabled
+  };
+}
+function settingsUi(){
+  if(!D||!D.project)return;
+  writeSettingsForm_(savedSettingsObject_());
+  $('psProvisioningMode').value=(D.project.provisioningMode||'');
+  $('psRootFolder').value=(D.project.rootFolderName||'') + (D.project.rootFolderId?'  ['+D.project.rootFolderId+']':'');
+  const draft=loadSettingsDraft_();
+  if(draft){writeSettingsForm_(draft);$('settingsDraftState').textContent='Đã khôi phục bản nháp chưa Save.'}else{$('settingsDraftState').textContent='Draft tự động lưu khi bạn nhập.'}
+  $('settingsOverlay').classList.add('show');
+  $('settingsOverlay').setAttribute('aria-hidden','false');
+  setTimeout(()=>{$('psProjectName')&&$('psProjectName').focus()},30);
+}
+function closeSettingsModal(){
+  saveSettingsDraft_();
+  $('settingsOverlay').classList.remove('show');
+  $('settingsOverlay').setAttribute('aria-hidden','true');
+}
+function resetSettingsDraft(){
+  if(!confirm('Bỏ toàn bộ dữ liệu nháp và nạp lại thông số đã Save của project?'))return;
+  clearSettingsDraft_();
+  writeSettingsForm_(savedSettingsObject_());
+  $('settingsDraftState').textContent='Đã bỏ bản nháp và nạp lại dữ liệu đã Save.';
+}
+function validateSettingsForm_(f){
+  const errors=[];
+  if(!String(f.psProjectName||'').trim())errors.push('Project Name');
+  if(!String(f.psProjectKeyword||'').trim())errors.push('Project Keyword');
+  if(!String(f.psBrandName||'').trim())errors.push('Brand Name');
+  if(!String(f.psWebsiteUrl||'').trim())errors.push('Website URL');
+  if(f.psBrandingEnabled){
+    if(!String(f.psLogoDrive||'').trim())errors.push('Logo Google Drive File ID / URL');
+  }
+  return errors;
+}
+function saveSettingsModal(){
+  if(!D||!D.project)return;
+  const f=readSettingsForm_();
+  const missing=validateSettingsForm_(f);
+  if(missing.length){showResult('Chưa điền: '+missing.join(', '),'error');return}
+  const payload={
+    projectId:D.project.projectId,
+    projectName:String(f.psProjectName||'').trim(),
+    projectKeyword:String(f.psProjectKeyword||'').trim(),
+    projectType:String(f.psProjectType||'OTHER').trim().toUpperCase(),
+    targetPageUrl:String(f.psTargetUrl||'').trim(),
+    brandName:String(f.psBrandName||'').trim(),
+    websiteUrl:String(f.psWebsiteUrl||'').trim(),
+    logoFileId:String(f.psLogoDrive||'').trim(),
+    phone:String(f.psPhone1||'').trim(), phone2:String(f.psPhone2||'').trim(), email:String(f.psEmail||'').trim(), address:String(f.psAddress||'').trim(),
+    googleMapsUrl:String(f.psMapsUrl||'').trim(), googleSitesUrl:String(f.psSitesUrl||'').trim(),
+    extendedGoogleAssets:{
+      notebookLmPublicUrl:String(f.psNotebookLmUrl||'').trim(), notebookLmChatUrl:String(f.psNotebookLmChatUrl||'').trim(),
+      googleMyMapsUrl:String(f.psMyMapsUrl||'').trim(), googleEarthUrl:String(f.psEarthUrl||'').trim(),
+      googleSitesUrl:String(f.psSitesUrl||'').trim(), googleAiStudioUrl:String(f.psAiStudioUrl||'').trim(),
+      googleColabUrl:String(f.psColabUrl||'').trim(), googleVidsUrl:String(f.psVidsUrl||'').trim(),
+      googleVidsMp4Url:String(f.psVidsMp4Url||'').trim(), googlePicsUrl:String(f.psPicsUrl||'').trim(),
+      appsScriptWebAppUrl:String(f.psAppsScriptWebAppUrl||'').trim(), googleDrawingFileIdOrUrl:String(f.psDrawingUrl||'').trim()
+    },
+    branding:{
+      enabled:!!f.psBrandingEnabled,
+      brandName:String(f.psBrandName||'').trim(), websiteUrl:String(f.psWebsiteUrl||'').trim(),
+      phones:[f.psPhone1,f.psPhone2].map(v=>String(v||'').trim()).filter(Boolean),
+      email:String(f.psEmail||'').trim(), address:String(f.psAddress||'').trim(),
+      logo:{enabled:true,driveFileId:String(f.psLogoDrive||'').trim(),publicUrl:String(f.psLogoPublic||'').trim()},
+      cta:{enabled:true,driveFileId:String(f.psCtaDrive||'').trim(),publicUrl:String(f.psCtaPublic||'').trim(),label:String(f.psCtaLabel||'TƯ VẤN NGAY').trim()||'TƯ VẤN NGAY'},
+      targets:{slides:!!f.psTargetSlides,docs:!!f.psTargetDocs,pdf:!!f.psTargetPdf,docx:!!f.psTargetDocx,html:!!f.psTargetHtml}
+    },
+    scheduledRegistrySync:{enabled:!!f.psScheduledSync}
+  };
+  call('saveProjectSettingsV465',[payload],r=>{
+    const persistence=(r&&r.persistence)||{};
+    if(!r||!r.success){
+      const mismatches=(persistence.mismatches||[]).map(x=>x.key+': expected='+x.expected+' / actual='+x.actual).join('\n');
+      showResult(
+        'Project Profile đã lưu nhưng Project Config chưa xác minh hoàn tất.'+
+        (mismatches?'\n'+mismatches:'')+
+        '\nGiữ nguyên bản nháp để kiểm tra lại Registry.',
+        'warn'
+      );
+      loadDashboard();
+      return;
+    }
+    clearSettingsDraft_();
+    $('settingsOverlay').classList.remove('show');
+    $('settingsOverlay').setAttribute('aria-hidden','true');
+    let msg='✓ Project Profile đã lưu'+
+      '\n✓ Project Config đã sync'+
+      '\n✓ Read-back verification PASS';
+    if(persistence.ctaOptional&&!persistence.ctaConfigured){
+      msg+='\nℹ CTA Footer đang để trống (optional).';
+    }
+    msg+='\n✓ Extended Google Assets: '+(persistence.extendedAssetsConfigured||0)+' URL đã cấu hình';
+    if(persistence.extendedAssetsConfigured && !persistence.extendedAssetsRegistrySynced){
+      msg+='\n⚠ Extended Assets Registry chưa xác minh sync.';
+    }
+    msg+='\nBước tiếp theo: bấm Validate Branding.';
+    showResult(msg,'success');
+    loadDashboard();
+  },'Đang lưu Project Settings → Registry → verify read-back...');
+}
+function installSettingsDraftAutosave_(){
+  const formIds=settingsFieldIds_();
+  formIds.forEach(id=>{const el=$(id);if(!el)return;el.addEventListener('input',saveSettingsDraft_);el.addEventListener('change',saveSettingsDraft_)});
+  $('settingsOverlay').addEventListener('click',e=>{if(e.target===$('settingsOverlay'))closeSettingsModal()});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('settingsOverlay').classList.contains('show'))closeSettingsModal()});
+}
+
+function validateBrandingUi(){
+  call('validateActiveProjectBranding',[],r=>{
+    let msg='Branding: '+(r.enabled?'ENABLED':'DISABLED')+'\n'+
+      'Valid: '+(r.valid?'YES':'NO')+'\n'+
+      'Logo: '+((r.config&&r.config.logo&&r.config.logo.driveFileId)?'CONFIGURED':'MISSING')+'\n'+
+      'CTA: '+((r.config&&r.config.cta&&r.config.cta.driveFileId)?'CONFIGURED':'MISSING')+'\n'+
+      'Warnings: '+((r.warnings||[]).join(', ')||'None')+'\n'+
+      'Errors: '+((r.errors||[]).join(', ')||'None');
+    showResult(msg,r.valid?'success':'error');
+  },'Đang kiểm tra Logo / CTA trên Google Drive...')
+}
+
+function reviewLifecycleUi(){
+  if(!D||!D.project)return;
+  const l=D.lifecycle||{};
+  let type=prompt('Project Type: HOMEPAGE / PAGE_TARGET / SERVICE_PAGE / ARTICLE / AUTHOR / BRAND / OTHER',l.suggestedProjectType||l.projectType||'PAGE_TARGET');if(!type)return;
+  type=type.trim().toUpperCase();
+  let mode=prompt('Setup Mode: NEW_STACK hoặc MIGRATE_V2',l.suggestedProvisioningMode||l.provisioningMode||'NEW_STACK');if(!mode)return;
+  mode=mode.trim().toUpperCase();
+  let ack=false;
+  if(mode==='NEW_STACK'&&(l.upgradeEvidence||[]).length){
+    ack=confirm('GES phát hiện dấu hiệu legacy/migration: '+(l.upgradeEvidence||[]).join(', ')+'\n\nBạn vẫn muốn xác nhận đây là NEW_STACK?');
+    if(!ack)return;
+  }
+  call('confirmProjectLifecycle',[{projectId:D.project.projectId,projectType:type,provisioningMode:mode,targetPageUrl:D.project.targetPageUrl||'',acknowledgeLegacyEvidence:ack}],()=>loadDashboard(),'Đang xác nhận Project Lifecycle...')
+}
+
+function migrationUi(){
+  call('previewV2Migration',[],m=>{
+    let msg='V2 → V3 Migration Preview\n\nRoot Docs sẽ move vào Articles: '+m.rootDocs.length+'\nDocs đã ở Articles: '+m.articleDocs.length+'\nSlides: '+m.assetSummary.SLIDES+'\nPDF: '+m.assetSummary.PDF+'\nDOCX: '+m.assetSummary.DOCX+'\n\n'+m.warning+'\n\nOK = chạy migration. Cancel = không làm gì.';
+    if(confirm(msg)){
+      call('runV2Migration',[{adoptExistingAssets:true}],r=>{showResult(JSON.stringify(r,null,2),'success');loadDashboard()},'Đang migrate V2 → V3...')
+    } else loadDashboard();
+  },'Đang tạo Migration Preview...')
+}
+function verifyMigrationUi(){call('verifyV2Migration',[],r=>{showResult(JSON.stringify(r,null,2),r.success?'success':'error');loadDashboard()},'Đang Verify Migration + File IDs...')}
+function rollbackMigration(){if(!confirm('Rollback source Docs về root để V2 nhìn thấy lại?'))return;call('rollbackLastV2Migration',[],r=>{showResult(JSON.stringify(r,null,2),'warn');loadDashboard()},'Đang rollback...')}
+function enableWrite(){if(!confirm('Enable GES production WRITE cho active project? Với MIGRATE_V2 phải Verify trước. Với NEW_STACK không cần migration.'))return;call('cutoverProjectToV3',[],()=>loadDashboard(),'Đang Enable GES Write...')}
+function disableWrite(){if(!confirm('Disable GES Write và đưa project về Shadow Mode?'))return;call('setProjectWriteEnabled',[D.project.projectId,false],()=>loadDashboard(),'Đang Disable GES Write...')}
+
+
+function previewG1Models(){
+  let ids=selected();
+  let docId=ids.length?ids[0]:'';
+  call('getActiveG1ModelSummary',[docId],r=>showResult(JSON.stringify(r,null,2),'success'),'Đang build Entity Profile + Canonical Content Model (read-only)...')
+}
+
+function previewSheetUi(){
+  call('previewActiveProjectSheetV4',[],r=>showResult(JSON.stringify(r,null,2),'success'),'Đang Preview Public Project Sheet (read-only)...');
+}
+function buildSheetUi(){
+  if(!canWrite())return alert('Project đang SHADOW MODE. Hãy Enable GES Write trước.');
+  if(!confirm('Build/Sync Public Project Sheet duy nhất cho project hiện tại? File nằm trực tiếp trong PROJECT_ROOT và render 2 tab: Assets, Content. Asset Registry vẫn private; legacy Sheets không bị move/xóa.'))return;
+  call('buildActiveProjectSheetV4',[],r=>{showResult(JSON.stringify(r,null,2),r.success?'success':'warn');loadDashboard()},'Đang Build/Sync Public Project Sheet...');
+}
+function validatePublicSheetUi(){
+  call('validateActiveProjectPublicSheetV43',[],r=>showResult(JSON.stringify(r,null,2),r.valid?'success':'warn'),'Đang kiểm tra Public Project Sheet...');
+}
+function previewDocsResourcesUi(){
+  call('previewActiveDocumentResourceFootersV466',[],r=>showResult(JSON.stringify(r,null,2),r.success?'success':'warn'),'Đang Preview Recommended Resources cho Google Docs...');
+}
+function syncDocsResourcesUi(){
+  if(!canWrite())return alert('Project đang SHADOW MODE. Hãy Enable GES Write trước.');
+  if(!confirm('Sync NGUỒN THAM KHẢO THÊM + LIÊN HỆ + Website vào cuối tất cả Source Google Docs?\n\nGenerated Docs footer được GES quản lý và không đi vào canonical content. Slides/PDF/DOCX/HTML nhận một output-layer footer riêng. V4.6.8 sẽ xử lý từng Docs bằng resumable queue.'))return;
+  call('syncActiveProjectDocumentResourceFootersV466',[],r=>{showResult(JSON.stringify(r,null,2),r.success?'success':'warn');loadDashboard()},'Đang tạo DOC_RESOURCE queue; mỗi Source Doc là một resumable job...');
+}
+function previewOutputResourcesUi(){
+  call('previewActiveOutputResourceFootersV467',[],r=>showResult(JSON.stringify(r,null,2),r.success?'success':'warn'),'Đang Preview hyperlink footer cho Slides/PDF/DOCX/HTML...');
+}
+function syncOutputResourcesUi(){
+  if(!canWrite())return alert('Project đang SHADOW MODE. Hãy Enable GES Write trước.');
+  if(!confirm('Sync output resources bằng Resumable Queue?\n\nGES sẽ đảm bảo Slides/PDF/DOCX/HTML tồn tại trước khi đồng bộ resource footer. MISSING output sẽ được tạo; heavy PDF/DOCX tự tách sang execution riêng.'))return;
+  call('syncActiveProjectOutputResourceFootersV467',[],r=>{showResult(JSON.stringify(r,null,2),r.success?'success':'warn');loadDashboard()},'Đang tạo OUTPUT_RESOURCE queue; hệ thống sẽ tự resume đến khi hoàn tất...');
+}
+function setProjectPublicSheetPublishedUrlUi(){
+  let url=prompt('Published-to-Web URL cho Public Project Sheet:');
+  if(!url)return;
+  call('setActiveProjectPublicSheetPublishedUrlV43',[url],r=>{showResult(JSON.stringify(r,null,2),r.success?'success':'warn');loadDashboard()},'Đang lưu Published URL + refresh Public Sheet...');
+}
+function previewPublicContentUi(){
+  call('previewActiveProjectContentProjectionV43',[],r=>showResult(JSON.stringify(r,null,2),'success'),'Đang Preview Content projection (all Articles Docs)...');
+}
+function previewFormUi(){
+  call('previewActiveProjectFormV4',[],r=>showResult(JSON.stringify(r,null,2),'success'),'Đang Preview Google Form (read-only)...');
+}
+function buildFormUi(){
+  if(!canWrite())return alert('Project đang SHADOW MODE. Hãy Enable GES Write trước.');
+  if(!confirm('Build/Sync Project Form duy nhất cho project hiện tại? Form dùng exact Project Keyword Source Doc; legacy Forms không bị move/xóa.'))return;
+  call('buildActiveProjectFormV4',[],r=>{showResult(JSON.stringify(r,null,2),r.success?'success':'warn');loadDashboard()},'Đang Build/Sync Google Form...');
+}
+function inspectBuildQueueUi(){
+  call('getActiveBuildQueueStateV4',[],r=>showResult(JSON.stringify(r,null,2),r.success===false?'error':'success'),'Đang đọc Build Queue...');
+}
+function retryBuildQueueUi(){
+  if(!canWrite())return alert('Project đang SHADOW MODE.');
+  call('retryBuildQueueV4',[''],r=>{showResult(JSON.stringify(r,null,2),r.success===false?'error':'success');loadDashboard()},'Đang retry Build Queue...');
+}
+
+function previewBuildCompleteGesUi(){
+  call('previewBuildCompleteGesV4',[''],r=>{
+    showResult(JSON.stringify(r,null,2),r.success?'success':'warn');
+  },'Đang Preview BUILD COMPLETE GES (read-only)...');
+}
+function buildCompleteGesUi(){
+  if(!canWrite())return alert('Project đang SHADOW MODE. Hãy Enable GES Write trước.');
+  if(!confirm('BUILD COMPLETE GES cho project hiện tại?\n\nQueue resumable: mỗi Source Doc → Slides/HTML/PDF/DOCX; sau đó Public Sheet/Form → Calendar → từng Docs Resource Footer → từng Output Resource Footer. PDF/DOCX chạy tối đa một heavy job mỗi execution.\nCalendar V2.1 được bật. Nếu Calendar cũ cần migration, queue sẽ SKIP Calendar cho tới khi bạn Apply V2 Migration. Không auto-delete event legacy.'))return;
+  call('buildCompleteActiveGesV4',[],r=>{
+    showResult(JSON.stringify(r,null,2),r.success?'success':'warn');
+    loadDashboard();
+  },'Đang BUILD COMPLETE GES...');
+}
+function previewCalendarUi(){
+  call('getCalendarPlanSummaryV4',[''],r=>showResult(JSON.stringify(r,null,2),r.valid?'success':'warn'),'Đang Preview Calendar V2.1 Plan...');
+}
+function previewCalendarSyncUi(){
+  call('previewCalendarSyncV4',[''],r=>showResult(JSON.stringify(r,null,2),r.success?'success':'warn'),'Đang Preview Calendar V2.1 Sync...');
+}
+function previewCalendarV2MigrationUi(){
+  call('previewActiveCalendarV2MigrationV4',[],r=>showResult(JSON.stringify(r,null,2),r.success?'success':'warn'),'Đang Preview Calendar V2 Migration...');
+}
+function applyCalendarV2MigrationUi(){
+  if(!canWrite())return alert('Project đang SHADOW MODE.');
+  if(!confirm('Apply Calendar V2 Migration?\n\nChỉ rename mapping an toàn để giữ Event ID. Không xóa Calendar/Event cũ. Các role retired/không match sẽ giữ lại và được đánh dấu ORPHANED sau Sync.'))return;
+  call('applyActiveCalendarV2MigrationV4',[],r=>{showResult(JSON.stringify(r,null,2),r.success?'success':'warn');loadDashboard()},'Đang Apply Calendar V2 Migration...');
+}
+function buildCalendarUi(){
+  if(!canWrite())return alert('Project đang SHADOW MODE.');
+  if((D.calendar&&D.calendar.migration&&D.calendar.migration.required))return alert('Hãy Preview + Apply Calendar V2 Migration trước.');
+  if(!confirm('Build/Adopt Calendar V2.1 cho project hiện tại?\n\nKhông xóa event cũ; chỉ tạo/adopt các role READY.'))return;
+  call('buildActiveProjectCalendarV4',[],r=>{showResult(JSON.stringify(r,null,2),r.success?'success':'warn');loadDashboard()},'Đang Build/Adopt Calendar V2.1...');
+}
+function syncCalendarUi(){
+  if(!canWrite())return alert('Project đang SHADOW MODE.');
+  if((D.calendar&&D.calendar.migration&&D.calendar.migration.required))return alert('Hãy Preview + Apply Calendar V2 Migration trước.');
+  call('syncActiveProjectCalendarV4',[],r=>{showResult(JSON.stringify(r,null,2),r.success?'success':'warn');loadDashboard()},'Đang Sync Calendar V2.1...');
+}
+function inspectCalendarUi(){
+  call('inspectCalendarSyncStateV4',[''],r=>{
+    showResult(JSON.stringify(r,null,2),r.success?'success':'warn');
+  },'Đang Inspect Calendar State...');
+}
+function openGesCalendarUi(){
+  const c=(D&&D.calendar)||{};
+  if(c.calendarUrl){window.open(c.calendarUrl,'_blank');return;}
+  call('inspectActiveProjectCalendarV4',[],r=>{
+    if(r.calendarUrl)window.open(r.calendarUrl,'_blank');
+    else showResult('Project chưa có Calendar. Hãy Preview rồi Build/Sync Calendar.','warn');
+  },'Đang mở Calendar...');
+}
+function validateCalendarVisibilityUi(){call('validateActiveProjectCalendarVisibilityV4',[],r=>showResult(JSON.stringify(r,null,2),r.valid?'success':'warn'),'Đang Validate Calendar Public/Sharing...')}
+function auditCalendarRegistryUi(){
+  call('auditCalendarRegistryV4',[],r=>{
+    showResult(JSON.stringify(r,null,2),r.success?'success':'error');
+  },'Đang Audit Calendar Events Registry...');
+}
+
+function previewCalendarLegacyCleanupUi(){
+  call('previewActiveCalendarV21LegacyCleanup',[],r=>showResult(JSON.stringify(r,null,2),(r.blockers&&r.blockers.length)?'warn':'success'),'Đang Preview Calendar V2.1.1 Legacy Cleanup...');
+}
+function applyCalendarLegacyCleanupUi(){
+  if(!D||!D.project)return;
+  if(!confirm('XÓA các remote Calendar event LEGACY không thuộc 15 canonical event V2.1.1?\n\nChỉ event được xác nhận bằng Project Registry hoặc GES extended properties mới bị xóa. Registry row được giữ lịch sử ở trạng thái ORPHANED và Event ID cũ được lưu trong Notes. Canonical 15 event KHÔNG bị xóa.\n\nSau cleanup hãy chạy Sync Calendar để patch TARGET_URL / Drawing / schedule mới.'))return;
+  call('applyActiveCalendarV21LegacyCleanup',[],r=>{showResult(JSON.stringify(r,null,2),r.success?'success':'warn');loadDashboard()},'Đang Apply Calendar V2.1.1 Legacy Cleanup...');
+}
+function previewProjectResetUi(){
+  if(!D||!D.project)return alert('Chưa có active project.');
+  const mode=($('resetMode')&&$('resetMode').value)||'RESET_TEST_BUILD';
+  call('previewActiveProjectResetV44',[mode],r=>{
+    const level=(r.safety&&r.safety.blockers&&r.safety.blockers.length)?'warn':'success';
+    showResult(formatProjectResetPreviewV44_(r),level);
+  },'Đang lập Project Reset Preview · '+mode+'...');
+}
+function runProjectResetSmokeUi(){
+  call('runProjectResetPreviewSmokeTestsV44',[],r=>showResult(JSON.stringify(r,null,2),r.success?'success':'error'),'Đang chạy Reset Preview smoke test...');
+}
+function formatProjectResetPreviewV44_(r){
+  const s=r.safety||{}, d=r.drive||{}, c=r.calendar||{}, g=r.registry||{}, rt=r.runtime||{};
+  let lines=[];
+  lines.push('PROJECT RESET PREVIEW ONLY');
+  lines.push('Project: '+(r.projectName||''));
+  lines.push('Mode: '+(r.mode||'')+' · '+(r.modeLabel||''));
+  lines.push('Plan fingerprint: '+(r.planFingerprint||''));
+  lines.push('');
+  lines.push('KEEP Source Docs: '+((r.sourceDocs&&r.sourceDocs.count)||0));
+  lines.push('Drive trash candidates: '+(d.trashCandidateCount||0));
+  lines.push('Drive review required: '+(d.reviewRequiredCount||0));
+  lines.push('Calendar managed events: '+(c.managedEventCount||0)+' · Calendar containers: '+(c.calendarCount||0));
+  lines.push('Registry rows: Assets '+((g.counts&&g.counts.assets)||0)+' · URL Variants '+((g.counts&&g.counts.urlVariants)||0)+' · Calendar Events '+((g.counts&&g.counts.calendarEvents)||0));
+  lines.push('Runtime project properties: '+(rt.propertyCount||0)+' · Shared triggers kept: '+(rt.sharedTriggerCount||0));
+  lines.push('');
+  lines.push('Blockers: '+((s.blockers||[]).join(', ')||'None'));
+  lines.push('Warnings: '+((s.warnings||[]).join(', ')||'None'));
+  lines.push('Future confirmation phrase: '+(r.confirmationPhraseForFuturePatch||''));
+  lines.push('');
+  lines.push('EXECUTION AVAILABLE: NO — Patch D contains preview only.');
+  lines.push('');
+  lines.push(JSON.stringify(r,null,2));
+  return lines.join('\n');
+}
+
+function copyText(t){navigator.clipboard&&navigator.clipboard.writeText(t);alert('Đã copy:\n'+t)}
+function setPublishedUrlUi(type,id){
+  let url=prompt('Published-to-Web URL cho '+type+':');
+  if(!url)return;
+  call('setPublishedUrlForAsset',[type,id,url],r=>{
+    const p=(r&&r.publicProjection)||{};
+    let lines=[];
+    lines.push('✓ Published URL đã lưu: '+(r.publishedId||''));
+    if(r.registryRebuilt)lines.push('✓ Private Registry / URL Variants đã cập nhật');
+    if(p.required){
+      if(p.refreshed&&p.verified){
+        lines.push('✓ Public Sheet / Assets đã cập nhật và xác minh');
+      }else if(p.skipped){
+        lines.push('⚠ Public Assets chưa refresh: '+(p.message||p.code||'SKIPPED'));
+      }else if(p.attempted){
+        lines.push('⚠ Public Assets: '+(p.message||p.code||'REFRESH_FAILED'));
+      }
+    }
+    const ok=!p.required||(p.refreshed&&p.verified)||p.skipped;
+    showResult(lines.join('\n'),ok?'success':'warn');
+    loadDashboard();
+  },'Đang lưu Published URL + cập nhật Private Registry + Public Assets...')
+}
+function installTrigger(){call('installGlobalRegistryTrigger',[],r=>showResult('Đã cài Global Scan Trigger mỗi '+r.everyMinutes+' phút.','success'),'Đang cài trigger...')}
+
+window.addEventListener('load',()=>{installSettingsDraftAutosave_();loadDashboard()});
+</script>
+</body>
+</html>
